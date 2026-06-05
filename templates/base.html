@@ -1,0 +1,54 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}MR CHOW - Premium Food Market{% endblock %}</title>
+    <meta name="description" content="Discover premium food items at MR CHOW marketplace.">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <header class="glass">
+        <div class="logo">
+            <a href="{% url 'home' %}">MR CHOW</a>
+        </div>
+        <form action="{% url 'home' %}" method="get" class="search-form">
+            <input type="text" name="q" placeholder="Search products..." class="search-input" value="{{ request.GET.q }}">
+            <button type="submit" class="btn btn-primary" style="padding: 0.5rem 1rem;">Search</button>
+        </form>
+        <nav>
+            <ul>
+                <li><a href="{% url 'home' %}">Home</a></li>
+                <li>
+                    <a href="{% url 'cart_detail' %}" style="display: flex; align-items: center; gap: 0.5rem;">
+                        Cart 
+                        <span style="background: var(--primary-color); padding: 0.1rem 0.5rem; border-radius: 50px; font-size: 0.8rem; color: white;">
+                            {{ cart_items_count|default:0 }}
+                        </span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                    <div class="message glass {{ message.tags }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <footer>
+        <p>&copy; 2026 MR CHOW Marketplace. All rights reserved.</p>
+    </footer>
+</body>
+</html>
