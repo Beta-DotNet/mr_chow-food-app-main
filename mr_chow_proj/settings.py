@@ -28,11 +28,12 @@ DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
 # Configure ALLOWED_HOSTS for different environments
 if os.environ.get('VERCEL'):
-    ALLOWED_HOSTS = ['.vercel.app', '.vercel.sh', 'localhost', '127.0.0.1']
+    ALLOWED_HOSTS = ['mr-chow.vercel.app', '.vercel.app', '.vercel.sh', 'localhost', '127.0.0.1']
 else:
     ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
 CSRF_TRUSTED_ORIGINS = [
+    'https://mr-chow.vercel.app',
     'https://*.vercel.app',
     'https://*.vercel.sh',
     'http://localhost:8000',
@@ -85,12 +86,29 @@ WSGI_APPLICATION = 'mr_chow_proj.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+# Use SQLite for development, but handle Vercel's ephemeral filesystem
+if os.environ.get('VERCEL'):
+    # On Vercel, we can use PostgreSQL if DATABASE_URL is set,
+    # otherwise use SQLite but note it won't persist across deployments
+    if os.environ.get('DATABASE_URL'):
+        import dj_database_url
+        DATABASES = {
+            'default': dj_database_url.config(default=os.environ.get('DATABASE_URL'))
+        }
+    else:
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.sqlite3',
+                'NAME': '/tmp/db.sqlite3',  # Use /tmp for ephemeral storage
+            }
+        }
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
     }
-}
 
 
 # Password validation
@@ -129,5 +147,30 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_DIRS = [BASE_DIR / 'static']
+if os.path.exists(BASE_DIR / 'static'):
+    STATICFILES_DIRS = [BASE_DIR / 'static']
+else:
+    STATICFILES_DIRS = []
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# Logging configuration for debugging
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO',
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
+            'propagate': False,
+        },
+    },
+}
