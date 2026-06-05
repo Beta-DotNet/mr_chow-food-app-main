@@ -3,6 +3,7 @@
   "outputDirectory": ".",
   "framework": "django",
   "env": {
-    "DJANGO_SETTINGS_MODULE": "mr_chow_proj.settings"
+    "DJANGO_SETTINGS_MODULE": "mr_chow_proj.settings",
+    "VERCEL": "1"
   }
 }

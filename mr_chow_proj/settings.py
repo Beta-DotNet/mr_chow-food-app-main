@@ -26,7 +26,17 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-9$&t2_sl@w2ayh-pl*d@s
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+# Configure ALLOWED_HOSTS for different environments
+if os.environ.get('VERCEL'):
+    ALLOWED_HOSTS = ['.vercel.app', '.vercel.sh', 'localhost', '127.0.0.1']
+else:
+    ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://*.vercel.app',
+    'https://*.vercel.sh',
+    'http://localhost:8000',
+]
 
 
 # Application definition
